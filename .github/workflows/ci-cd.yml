@@ -1,0 +1,110 @@
+name: CI/CD Pipeline
+
+on:
+  workflow_dispatch:
+
+env:
+  JFROG_PLATFORM_URL: ${{ secrets.JFROG_PLATFORM_URL }}
+  JF_DOCKER_REGISTRY: ${{ secrets.JFROG_DOCKER_REGISTRY }}
+  JF_USER: ${{ secrets.JFROG_USERNAME }}
+  JF_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
+  JF_BUILD_NAME: fifa-worldcup-2026-build
+  JF_BUILD_NUMBER: ${{ github.run_number }}
+  JF_PROJECT: ${{ secrets.JFROG_PROJECT }}
+
+jobs:
+  build-and-test-frontend:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Lint
+        run: npx eslint src/ --ext .ts,.html || true
+
+      - name: Build
+        run: npx ng build --configuration=production
+
+  build-and-push:
+    needs:
+      - build-and-test-frontend
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
+      - name: Configure JFrog CLI
+        run: |
+          jf config add jfrog \
+            --url=${{ env.JFROG_PLATFORM_URL }} \
+            --user=${{ env.JF_USER }} \
+            --access-token=${{ env.JF_PASSWORD }} \
+            --interactive=false
+
+          jf config use jfrog
+
+      - name: Add Git Info to Build
+        run: |
+          jf rt build-add-git \
+            "${{ env.JF_BUILD_NAME }}" \
+            "${{ env.JF_BUILD_NUMBER }}" .
+
+      - name: Docker Login
+        run: |
+          echo "${{ env.JF_PASSWORD }}" | docker login ${{ env.JF_DOCKER_REGISTRY }} \
+            -u "${{ env.JF_USER }}" \
+            --password-stdin
+
+      - name: Build Frontend Image
+        run: |
+          docker build \
+            -t ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026-frontend:${{ github.sha }} \
+            -t ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026-frontend:latest \
+            ./frontend
+
+      - name: Push Frontend Image
+        run: |
+          docker push \
+            ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026-frontend:${{ github.sha }}
+
+      - name: Publish Build Info
+        run: |
+          jf rt build-publish \
+            "${{ env.JF_BUILD_NAME }}" \
+            "${{ env.JF_BUILD_NUMBER }}"
+
+  sonarcloud:
+    needs:
+      - build-and-test-frontend
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
