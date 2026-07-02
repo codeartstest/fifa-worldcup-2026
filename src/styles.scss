@@ -1,0 +1,134 @@
+$primary: #1A7A2E;
+$primary-dark: #145A22;
+$accent: #D4AF37;
+$accent-light: #E8CC6E;
+$bg-dark: #0D1B0F;
+$bg-card: #1A2E1D;
+$text-primary: #FFFFFF;
+$text-secondary: #B0C4B1;
+$text-muted: #6B8A6E;
+$border-color: #2D4A30;
+$danger: #E53935;
+$success: #43A047;
+$warning: #FB8C00;
+
+$breakpoint-desktop: 1280px;
+$breakpoint-tablet: 768px;
+
+$font-family: 'Roboto', sans-serif;
+
+@mixin desktop {
+  @media (min-width: $breakpoint-desktop) { @content; }
+}
+
+@mixin tablet {
+  @media (min-width: $breakpoint-tablet) and (max-width: #{$breakpoint-desktop - 1px}) { @content; }
+}
+
+@mixin mobile {
+  @media (max-width: #{$breakpoint-tablet - 1px}) { @content; }
+}
+
+@mixin tablet-and-below {
+  @media (max-width: #{$breakpoint-desktop - 1px}) { @content; }
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: $font-family;
+  background-color: $bg-dark;
+  color: $text-primary;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: $accent;
+  text-decoration: none;
+
+  &:hover {
+    color: $accent-light;
+  }
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px;
+
+  @include desktop {
+    padding: 0 24px;
+  }
+}
+
+.card {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &-primary {
+    background-color: $primary;
+    color: $text-primary;
+
+    &:hover {
+      background-color: $primary-dark;
+    }
+  }
+
+  &-accent {
+    background-color: $accent;
+    color: $bg-dark;
+
+    &:hover {
+      background-color: $accent-light;
+    }
+  }
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+
+  &::after {
+    content: '';
+    width: 40px;
+    height: 40px;
+    border: 3px solid $border-color;
+    border-top-color: $accent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: $danger;
+  text-align: center;
+  padding: 20px;
+}
