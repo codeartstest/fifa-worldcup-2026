@@ -78,7 +78,7 @@ export class NewsComponent implements OnInit {
   filteredArticles: NewsArticle[] = [];
   loading = true;
   error = '';
-  filterCategory = 'All';
+  private _filterCategory = 'All';
   categories: string[] = ['All'];
 
   constructor(private api: ApiService) {}
@@ -103,5 +103,4 @@ export class NewsComponent implements OnInit {
       : this.articles.filter(a => a.category === cat);
   }
   get filterCategory(): string { return this._filterCategory; }
-  private _filterCategory = 'All';
 }

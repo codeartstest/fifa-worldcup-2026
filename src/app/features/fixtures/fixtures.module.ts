@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { FixturesComponent } from './fixtures.component';
 
@@ -9,6 +10,6 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [FixturesComponent],
-  imports: [CommonModule, RouterModule.forChild(routes)]
+  imports: [CommonModule, FormsModule, RouterModule.forChild(routes)]
 })
 export class FixturesModule {}
