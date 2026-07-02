@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "title": "FIFA World Cup 2026: Tournament Format Explained",
+    "summary": "The 2026 World Cup will feature 48 teams for the first time, with 12 groups of 4 teams each. The top two from each group plus the eight best third-placed teams advance to the Round of 32.",
+    "category": "Tournament",
+    "author": "FIFA Communications",
+    "date": "2026-06-01",
+    "image": "",
+    "content": "The expanded format brings more nations than ever before to the world's biggest sporting event."
+  },
+  {
+    "id": 2,
+    "title": "Host Cities Ready: 16 Venues Across Three Nations",
+    "summary": "From Mexico City's Estadio Azteca to New York's MetLife Stadium, all 16 venues have completed preparations for the tournament.",
+    "category": "Venues",
+    "author": "World Cup Insider",
+    "date": "2026-05-28",
+    "image": "",
+    "content": "The 2026 World Cup spans three host nations for the first time in history."
+  },
+  {
+    "id": 3,
+    "title": "Qualification Complete: All 48 Teams Confirmed",
+    "summary": "The final qualifying matches have concluded, with all 48 teams now confirmed for the tournament. Several debut nations will make their first appearance.",
+    "category": "Teams",
+    "author": "Global Football Report",
+    "date": "2026-05-15",
+    "image": "",
+    "content": "The qualification process spanned over two years across all FIFA confederations."
+  },
+  {
+    "id": 4,
+    "title": "Top Players to Watch at the 2026 World Cup",
+    "summary": "From rising stars to seasoned veterans, here are the players expected to make the biggest impact at this summer's tournament.",
+    "category": "Players",
+    "author": "Sports Analytics Desk",
+    "date": "2026-06-05",
+    "image": "",
+    "content": "The tournament promises to showcase both established superstars and breakout talents."
+  },
+  {
+    "id": 5,
+    "title": "Opening Ceremony Details Announced",
+    "summary": "FIFA has revealed plans for the opening ceremony at Estadio Azteca in Mexico City, featuring performances celebrating the cultures of all three host nations.",
+    "category": "Events",
+    "author": "FIFA Communications",
+    "date": "2026-06-08",
+    "image": "",
+    "content": "The ceremony will blend Mexican, American, and Canadian cultural traditions."
+  },
+  {
+    "id": 6,
+    "title": "Sustainability Initiatives at the 2026 World Cup",
+    "summary": "FIFA outlines its commitment to carbon-neutral operations, including renewable energy at venues, waste reduction programs, and sustainable transportation options.",
+    "category": "Tournament",
+    "author": "Green Sports Alliance",
+    "date": "2026-05-20",
+    "image": "",
+    "content": "The 2026 tournament aims to set new standards for sustainability in mega sporting events."
+  }
+]
