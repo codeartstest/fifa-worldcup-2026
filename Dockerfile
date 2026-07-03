@@ -1,14 +1,14 @@
 FROM node:18-alpine AS frontend-build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps
 COPY . .
 RUN npx ng build --configuration=production
 
 FROM node:18-alpine AS backend-build
 WORKDIR /app/backend
 COPY backend/package*.json ./
-RUN npm ci
+RUN npm install
 COPY backend/ .
 RUN npm run build
 
@@ -22,7 +22,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=backend-build /app/backend/dist ./backend/dist
 COPY --from=backend-build /app/backend/package*.json ./backend/
 COPY --from=backend-build /app/backend/data ./backend/data
-RUN cd backend && npm ci --only=production
+RUN cd backend && npm install --only=production
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
