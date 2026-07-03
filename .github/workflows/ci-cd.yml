@@ -82,7 +82,8 @@ jobs:
         run: |
           jf rt build-add-git \
             "${{ env.JF_BUILD_NAME }}" \
-            "${{ env.JF_BUILD_NUMBER }}" .
+            "${{ env.JF_BUILD_NUMBER }}" \
+            --project="${{ env.JF_PROJECT }}" .
 
       - name: Docker Login
         run: |
