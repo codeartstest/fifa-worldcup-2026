@@ -13,7 +13,24 @@ env:
   JF_PROJECT: ${{ secrets.JFROG_PROJECT }}
 
 jobs:
-  build-and-test:
+  SonarCloud:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  Build:
+    needs:
+      - SonarCloud
+
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +41,6 @@ jobs:
           node-version: "24"
 
       - name: Install frontend dependencies
-        working-directory: .
         run: npm install --legacy-peer-deps
 
       - name: Build frontend
@@ -38,9 +54,9 @@ jobs:
         working-directory: backend
         run: npm run build
 
-  build-and-push:
+  Deploy-to-JFrog:
     needs:
-      - build-and-test
+      - Build
 
     runs-on: ubuntu-latest
 
@@ -55,9 +71,9 @@ jobs:
       - name: Configure JFrog CLI
         run: |
           jf config add jfrog \
-            --url=${{ env.JFROG_PLATFORM_URL }} \
-            --user=${{ env.JF_USER }} \
-            --access-token=${{ env.JF_PASSWORD }} \
+            --url="${{ env.JFROG_PLATFORM_URL }}" \
+            --user="${{ env.JF_USER }}" \
+            --access-token="${{ env.JF_PASSWORD }}" \
             --interactive=false
 
           jf config use jfrog
@@ -70,41 +86,24 @@ jobs:
 
       - name: Docker Login
         run: |
-          echo "${{ env.JF_PASSWORD }}" | docker login ${{ env.JF_DOCKER_REGISTRY }} \
+          echo "${{ env.JF_PASSWORD }}" | docker login "${{ env.JF_DOCKER_REGISTRY }}" \
             -u "${{ env.JF_USER }}" \
             --password-stdin
 
       - name: Build Docker Image
         run: |
           docker build \
-            -t ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:${{ github.sha }} \
-            -t ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:latest \
+            -t "${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:${{ github.sha }}" \
+            -t "${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:latest" \
             .
 
       - name: Push Docker Image
         run: |
-          docker push ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:${{ github.sha }}
-          docker push ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:latest
+          docker push "${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:${{ github.sha }}"
+          docker push "${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:latest"
 
       - name: Publish Build Info
         run: |
           jf rt build-publish \
             "${{ env.JF_BUILD_NAME }}" \
             "${{ env.JF_BUILD_NUMBER }}"
-
-  sonarcloud:
-    needs:
-      - build-and-test
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
