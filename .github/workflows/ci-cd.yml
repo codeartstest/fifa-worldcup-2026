@@ -87,7 +87,7 @@ jobs:
       - name: Docker Login
         run: |
           echo "${{ env.JF_PASSWORD }}" | docker login "${{ env.JF_DOCKER_REGISTRY }}" \
-            -u "${{ env.JF_USER }}" \
+            --username "${{ env.JF_PASSWORD }}" \
             --password-stdin
 
       - name: Build Docker Image
