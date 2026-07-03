@@ -86,21 +86,21 @@ jobs:
 
       - name: Docker Login
         run: |
-          echo "${{ env.JF_PASSWORD }}" | docker login "${{ env.JF_DOCKER_REGISTRY }}" \
-            --username "${{ env.JF_PASSWORD }}" \
+          echo "${{ env.JF_PASSWORD }}" | docker login ${{ env.JF_DOCKER_REGISTRY }} \
+            -u "${{ env.JF_USER }}" \
             --password-stdin
 
       - name: Build Docker Image
         run: |
           docker build \
-            -t "${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:${{ github.sha }}" \
-            -t "${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:latest" \
+            -t ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:${{ github.sha }} \
+            -t ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:latest \
             .
 
       - name: Push Docker Image
         run: |
-          docker push "${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:${{ github.sha }}"
-          docker push "${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:latest"
+          docker push ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:${{ github.sha }}
+          docker push ${{ env.JF_DOCKER_REGISTRY }}/testsdlcjfrog-codeartsagent/fifa-worldcup-2026:latest
 
       - name: Publish Build Info
         run: |
