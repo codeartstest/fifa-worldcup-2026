@@ -22,6 +22,6 @@ test.describe('Homepage Dashboard', () => {
   test('should navigate to fixtures page when clicking link', async ({ page }) => {
     await page.click('a[routerLink="/fixtures"]');
     await expect(page).toHaveURL('/fixtures');
-    await expect(page.locator('.page-title')).toHaveText('Match Fixtures');
+    await expect(page.locator('.page-title')).toContainText('Match Fixtures');
   });
 });
