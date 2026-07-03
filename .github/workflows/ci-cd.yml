@@ -106,4 +106,5 @@ jobs:
         run: |
           jf rt build-publish \
             "${{ env.JF_BUILD_NAME }}" \
-            "${{ env.JF_BUILD_NUMBER }}"
+            "${{ env.JF_BUILD_NUMBER }}" \
+            --project="${{ env.JF_PROJECT }}"
