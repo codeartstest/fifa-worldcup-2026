@@ -17,7 +17,7 @@
 
 ---
 
-# SDLC Agentic Flow — 10-Step Pipeline
+# SDLC Agentic Flow — 9-Step Pipeline
 
 ## Pipeline Overview
 
@@ -32,19 +32,17 @@ Step 1: PM Agent — Requirement Breakdown (PRD + GitHub + Jira)
    │                    │
    │                    └─→ Step 4: Code Reviewer Agent — Code Review (Semgrep MCP scan)
    │                           │
-   │                           └─→ Step 5: DevOps Engineer Agent — CI/CD (GitHub Actions manual trigger)
+   │                           └─→ Step 5: Tester Agent — E2E Testing (Playwright skill)
    │                                  │
-   │                                  └─→ Step 5b: DevOps Engineer Agent — JFrog Artifactory Verification (upload by GitHub Actions)
+   │                                  └─→ Step 6: DevOps Engineer Agent — CI/CD (SonarCloud + build + JFrog upload via GitHub Actions)
    │                                         │
-   │                                         └─→ Step 6: DevOps Engineer Agent — SonarCloud Scanning
+   │                                         └─→ Step 6b: DevOps Engineer Agent — JFrog Artifactory Verification
    │                                                │
-   │                                                └─→ Step 7: Tester Agent — E2E Testing (Playwright skill)
+   │                                                └─→ Step 7: PM Agent — Release Review (exclusive authority)
    │                                                       │
-   │                                                       └─→ Step 8: PM Agent — Release Review (exclusive authority)
+   │                                                       └─→ Step 8: PM Agent — Deployment on Huawei Cloud ECS
    │                                                              │
-   │                                                              └─→ Step 9: PM Agent — Deployment on Huawei Cloud ECS
-   │                                                                     │
-   │                                                                     └─→ Step 10: PM Agent — Sprint Close & Retrospective
+   │                                                              └─→ Step 9: PM Agent — Sprint Close & Retrospective
 ```
 
 ---
@@ -58,13 +56,12 @@ Step 1: PM Agent — Requirement Breakdown (PRD + GitHub + Jira)
 | 2. PM: Sprint Start & SDD Setup | ✅ Complete | Sprint 134 active, 7 SDD dirs × 3 docs = 21 files |
 | 3. Frontend/Backend: Development | ✅ Complete | All 7 features implemented, Jira → In Progress |
 | 4. Code Reviewer: Semgrep Scan | ✅ Complete | 0 findings, all 7 tasks reviewed |
-| 5. DevOps: CI/CD | ✅ Complete | Workflow updated, triggered via GitHub API, build passed |
-| 5b. DevOps: JFrog Verification | ✅ Complete | Build #25 verified, 4 artifacts + 1 asset, Xray clean |
-| 6. DevOps: SonarCloud | ✅ Complete | Quality Gate PASSED, 10 bugs (C reliability), 0 vulnerabilities |
-| 7. Tester: E2E with Playwright | ✅ Complete | 21 E2E test scenarios across 7 features, sign-off on all Jira tasks |
-| 8. PM: Release Review | ✅ Complete | All 6 checks passed, ES-24 to ES-31 transitioned to Done |
-| 9. PM: Huawei Cloud ECS Deployment | ⏭️ Skipped | No available host to deploy |
-| 10. PM: Sprint Close & Retrospective | ✅ Complete | Sprint 134 closed, retrospective posted on ES-24 |
+| 5. Tester: E2E with Playwright | ✅ Complete | 21 E2E test scenarios across 7 features, sign-off on all Jira tasks |
+| 6. DevOps: CI/CD (SonarCloud+build+JFrog) | ✅ Complete | SonarCloud QG PASSED, build passed, artifacts uploaded |
+| 6b. DevOps: JFrog Verification | ✅ Complete | Build #25 verified, 4 artifacts + 1 asset, Xray clean |
+| 7. PM: Release Review | ✅ Complete | All 6 checks passed, ES-24 to ES-31 transitioned to Done |
+| 8. PM: Huawei Cloud ECS Deployment | ⏭️ Skipped | No available host to deploy |
+| 9. PM: Sprint Close & Retrospective | ✅ Complete | Sprint 134 closed, retrospective posted on ES-24 |
 
 ---
 
@@ -130,19 +127,31 @@ Step 1: PM Agent — Requirement Breakdown (PRD + GitHub + Jira)
   6. If CRITICAL issues → REQUEST_CHANGES, transition Jira BACK to "In Progress"
   7. If approved → comment `@agent:devops Code review approved`
 
-### Step 5: DevOps Engineer Agent — CI/CD (GitHub Actions Manual)
-- **Owner**: DevOps Engineer Agent
-- **Tools**: GitHub MCP, Bash (PowerShell + GitHub API), Jira MCP
+### Step 5: Tester Agent — E2E Testing (Playwright)
+- **Owner**: Tester Agent
+- **Tools**: playwright-cli skill, Jira MCP
 - **Actions**:
   1. **Transition Jira task to "In Progress"**
-  2. Verify/update GitHub Actions workflow (build → SonarCloud → JFrog upload on manual dispatch)
-  3. **Manually trigger CI/CD** and **monitor workflow runs** — see `devops-agent.md` §5.3–5.4 for detailed PowerShell commands
-   4. If CI fails → identify failing job+step:
-      - **Build/test error** (Stage 2 fails): transition Jira BACK to "In Progress", comment `@agent:frontend` or `@agent:backend Build/test failed at <step>: <error>`
-      - **Pipeline config error** (Stage 1/3 fails, workflow YAML issue): DevOps self-fixes, re-trigger pipeline
-   6. If CI passes → proceed to JFrog Artifactory verification
+  2. Write E2E test scenarios via `playwright-cli` skill
+  3. Run E2E tests
+  4. If tests fail → create bug in Jira, transition original task BACK to "In Progress"
+  5. If tests pass → comment `@agent:devops E2E sign-off complete, ready for CI/CD`
 
-### Step 5b: DevOps Engineer Agent — JFrog Artifactory Verification
+### Step 6: DevOps Engineer Agent — CI/CD (GitHub Actions Manual)
+- **Owner**: DevOps Engineer Agent
+- **Tools**: GitHub MCP, Bash (PowerShell + GitHub API), Jira MCP, SonarCloud MCP
+- **Includes**: SonarCloud scanning (Stage 1), build (Stage 2), JFrog upload (Stage 3)
+- **Actions**:
+  1. **Transition Jira task to "In Progress"**
+  2. Verify/update GitHub Actions workflow (SonarCloud scan → build → JFrog upload on manual dispatch)
+  3. **Manually trigger CI/CD** and **monitor workflow runs** — see `devops-agent.md` §5.3–5.4 for detailed PowerShell commands
+  4. **SonarCloud Quality Gate check** (Stage 1): If QG fails → transition Jira BACK to "In Progress", comment `@agent:frontend` or `@agent:backend SonarCloud Quality Gate failed: <metric details>`
+  5. If CI fails → identify failing job+step:
+     - **Build/test error** (Stage 2 fails): transition Jira BACK to "In Progress", comment `@agent:frontend` or `@agent:backend Build/test failed at <step>: <error>`
+     - **Pipeline config error** (Stage 1/3 fails, workflow YAML issue): DevOps self-fixes, re-trigger pipeline
+  6. If CI passes (all 3 stages) → proceed to JFrog Artifactory verification (Step 6b)
+
+### Step 6b: DevOps Engineer Agent — JFrog Artifactory Verification
 - **Owner**: DevOps Engineer Agent
 - **Tools**: JFrog MCP, Jira MCP, Bash (GitHub API)
 - **NOTE**: Upload is handled by GitHub Actions pipeline. Agent only VERIFIES.
@@ -156,46 +165,24 @@ Step 1: PM Agent — Requirement Breakdown (PRD + GitHub + Jira)
   4. **File details**: `jfrog_artifactory_storage_artifact_info(repo_key, item_path, stats: true)` — size, SHA, download count
   5. **Traceability**: Match JFrog upload timestamp to GitHub Actions Stage 3 completion time
   6. **Xray security scan**: `jfrog_artifactory_artifacts_get_summary` — check artifact security status
-   7. If artifacts not found → check GitHub Actions secrets (JFrog credentials), re-trigger pipeline
-   8. If Xray finds vulnerabilities → transition Jira BACK to "In Progress", comment `@agent:frontend` or `@agent:backend Xray vulnerability found: <details>`
-   9. If all verified → proceed to Step 6 (SonarCloud)
+  7. If artifacts not found → check GitHub Actions secrets (JFrog credentials), re-trigger pipeline
+  8. If Xray finds vulnerabilities → transition Jira BACK to "In Progress", comment `@agent:frontend` or `@agent:backend Xray vulnerability found: <details>`
+  9. If all verified → proceed to Step 7 (Release Review)
 
-### Step 6: DevOps Engineer Agent — SonarCloud Scanning
-- **Owner**: DevOps Engineer Agent
-- **Tools**: SonarCloud MCP, Jira MCP
-- **Actions**:
-  1. Check Quality Gate via `sonarqube_get_project_quality_gate_status`
-  2. Search issues via `sonarqube_search_sonar_issues_in_projects`
-  3. Review security hotspots via `sonarqube_search_security_hotspots`
-  4. Check coverage via `sonarqube_search_files_by_coverage`
-  5. Check dependency risks via `sonarqube_search_dependency_risks`
-   6. If Quality Gate FAILS → transition Jira BACK to "In Progress", comment `@agent:frontend` or `@agent:backend SonarCloud Quality Gate failed: <metric details>`
-   7. If Quality Gate PASSES → comment `@agent:tester Ready for E2E testing`
-
-### Step 7: Tester Agent — E2E Testing (Playwright)
-- **Owner**: Tester Agent
-- **Tools**: playwright-cli skill, Jira MCP, SonarCloud MCP
-- **Actions**:
-  1. **Transition Jira task to "In Progress"**
-  2. Write E2E test scenarios via `playwright-cli` skill
-  3. Run E2E tests
-  4. If tests fail → create bug in Jira, transition original task BACK to "In Progress"
-  5. If tests pass → comment `@agent:pm E2E sign-off complete`
-
-### Step 8: PM Agent — Release Review (Exclusive)
+### Step 7: PM Agent — Release Review (Exclusive)
 - **Owner**: PM Agent (ONLY)
 - **Tools**: Jira MCP, SonarCloud MCP, GitHub MCP
 - **Actions**:
   1. Verify ALL tasks have Code Reviewer sign-off
   2. Verify ALL tasks have Tester E2E sign-off
-  3. Verify SonarCloud Quality Gate passes
+  3. Verify SonarCloud Quality Gate passed (in CI/CD Step 6)
   4. Verify JFrog Artifactory artifacts are published and Xray-clean
   5. Verify CI/CD pipeline passed
   6. Verify no open bugs or security vulnerabilities
   7. If ALL checks pass → transition tasks to "Done", present to human for approval
   8. If ANY check fails → trigger error throwback to the failing step
 
-### Step 9: PM Agent — Deployment on Huawei Cloud ECS (Exclusive)
+### Step 8: PM Agent — Deployment on Huawei Cloud ECS (Exclusive)
 - **Owner**: PM Agent (ONLY)
 - **Tools**: Bash (SSH), Jira MCP
 - **Actions**:
@@ -206,7 +193,7 @@ Step 1: PM Agent — Requirement Breakdown (PRD + GitHub + Jira)
   5. If deployment fails → rollback to previous image
    6. If deployment succeeds → comment `@agent:all Deployment complete`
 
-### Step 10: PM Agent — Sprint Close & Retrospective
+### Step 9: PM Agent — Sprint Close & Retrospective
 - **Owner**: PM Agent (ONLY)
 - **Tools**: Bash (Jira Agile REST API), Jira MCP
 - **Actions**:
@@ -271,3 +258,4 @@ See `pm-agent.md` — these sections are defined there as the PM Agent owns agen
 8. **GitHub MCP lacks workflow dispatch**: Use `Invoke-RestMethod` with GitHub PAT from `.codeartsdoer/mcp/mcp_settings.json` to call `POST /repos/{owner}/{repo}/actions/workflows/main.yml/dispatches`
 9. **Artifact upload breaks symlinks**: Splitting npm ci and npm run build into separate GitHub Actions jobs breaks `.bin` symlinks — keep install + build in the same job
 10. **SonarCloud token ≠ GitHub PAT**: SonarCloud MCP requires a SonarCloud-specific token (from sonarcloud.io/account/security/), not a GitHub PAT
+11. **SonarCloud Automatic Analysis conflicts with GitHub Actions**: If both are enabled simultaneously, the GitHub Actions workflow crashes with "You are running CI analysis while Automatic Analysis is enabled". To fix: go to SonarCloud → Project Dashboard → Administration → Analysis Method → turn OFF "SonarCloud Automatic Analysis" toggle. Requires Project Administrator permissions (org-level alone is insufficient). This must be done before triggering any CI/CD pipeline that includes a SonarCloud scan stage.

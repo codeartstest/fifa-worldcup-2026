@@ -2,7 +2,7 @@
 
 ## Trigger
 
-When user asks to start an agentic flow, SDLC pipeline, or any prompt related to initiating the 10-step agentic DevOps pipeline.
+When user asks to start an agentic flow, SDLC pipeline, or any prompt related to initiating the 9-step agentic DevOps pipeline.
 
 ---
 
@@ -127,6 +127,13 @@ Then:
    - Go to **SonarCloud > Administration > Organization Settings** and bind the GitHub organization
    - Go to **Administration > Pull Requests** and select GitHub as the ALM integration
    - This enables Quality Gate status checks on PRs and PR decoration
+5. **Disable Automatic Analysis** (CRITICAL — must be done before any CI/CD pipeline run):
+   - Go to **SonarCloud > Project Dashboard > Administration > Analysis Method**
+   - Turn OFF the **SonarCloud Automatic Analysis** toggle
+   - Requires **Project Administrator** permissions (org-level alone is insufficient)
+   - If both Automatic Analysis and GitHub Actions scan are enabled, the CI/CD workflow crashes with: `"You are running CI analysis while Automatic Analysis is enabled"`
+
+> **⚠️ CRITICAL WARNING:** Before collecting SonarCloud credentials below, the user MUST confirm they have disabled Automatic Analysis in SonarCloud. If this is not done, the GitHub Actions CI/CD pipeline will crash during the SonarCloud scan stage.
 
 #### Ask the user:
 
@@ -628,7 +635,7 @@ Once all service info is confirmed and saved:
 3. Generate `sonar-project.properties` from template
 4. Generate `.env` from template
 5. Remind user to set GitHub Secrets
-6. Proceed to `AGENTS.md` to begin the 10-step agentic SDLC pipeline
+6. Proceed to `AGENTS.md` to begin the 9-step agentic SDLC pipeline
 
 ---
 
@@ -697,6 +704,6 @@ User asks to start agentic flow
 │  Remind: GitHub Secrets                  │
 └──────────────┬───────────────────────────┘
                ▼
-     Proceed to AGENTS.md
-     (10-step agentic flow)
+      Proceed to AGENTS.md
+      (9-step agentic flow)
 ```

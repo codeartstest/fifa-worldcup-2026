@@ -9,3 +9,16 @@ Thumbs.db
 .angular/cache/
 test-results/
 playwright-report/
+
+# Local dev scripts
+run-backend*.ps1
+start-app.ps1
+start-backend.bat
+start-backend.ps1
+test-backend.ps1
+
+# Local debug output
+backend-error.txt
+
+# Local dev config
+proxy.conf.json
